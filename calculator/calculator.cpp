@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <cctype>
@@ -193,10 +193,6 @@ private:
         else if (match(TokenType::OPERATOR, "-")) {
             return -parse_factor();
         }
-        else if (match(TokenType::OPERATOR, "!")) {
-            double val = parse_factor();
-            return (val == 0.0) ? 1.0 : 0.0;
-        }
         // 数字
         else if (match(TokenType::NUMBER)) {
             return tokens[token_pos - 1].num_value;
@@ -273,7 +269,8 @@ private:
         size_t original_pos = token_pos;
         Token current = peek();
 
-        if (current.type != TokenType::ID) return false;
+        if (current.type != TokenType::ID) 
+        return false;
         advance();
 
         if (match(TokenType::ASSIGN, "=")) {
@@ -287,8 +284,6 @@ private:
             return false;
         }
     }
-
-
 
 public:
     ExpressionParser() {
@@ -375,11 +370,13 @@ void repl() {
         catch (const exception& e) {
             cerr << "错误：" << e.what() << endl;
         }
+
     }
 }
 
 // 主函数
 int main() {
     repl();
+    system("pause");
     return 0;
 }

@@ -25,5 +25,5 @@
 
 ## 运行示例
 
-![运行示例](calculator01.png)
+![运行示例](calculator_02.png)
 

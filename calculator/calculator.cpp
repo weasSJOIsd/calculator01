@@ -107,9 +107,9 @@ public:
         current_char = (pos < input.size()) ? input[pos] : '\0';
     }
 
-    // 生成Token列表（词法分析入口）
     vector<Token> tokenize() {
         vector<Token> tokens;
+    // 生成Token列表（词法分析入口）
         while (current_char != '\0') {
             // 跳过空白符
             if (isspace(current_char)) {
@@ -175,6 +175,51 @@ private:
         }
         return false;
     }
+    // 解析表达式
+    double parse_expr() {
+        double val = parse_term();
+        while (true) {
+            Token current = peek();
+            if (match(TokenType::OPERATOR, "+") || match(TokenType::OPERATOR, "-")) {
+                string op = current.value;
+                double term_val = parse_term();
+
+                if (op == "+") val += term_val;
+                else if (op == "-") val -= term_val;
+            }
+            else {
+                break;
+            }
+        }
+        return val;
+    }
+    double parse_term() {
+        double val = parse_power();
+
+        while (true) {
+            Token current = peek();
+            if (match(TokenType::OPERATOR, "*") || match(TokenType::OPERATOR, "/") || match(TokenType::OPERATOR, "%"))
+            {
+                string op = current.value;
+                double power_val = parse_power();
+
+                if (op == "*") val *= power_val;
+                else if (op == "/") {
+                    if (power_val == 0) throw runtime_error("运行错误：除数不能为0");
+                    val /= power_val;
+                }
+                else if (op == "%") {
+                    int temp = (int)val;
+                    temp %= (int)power_val;
+                    val = temp;
+                }
+            }
+            else {
+                break;
+            }
+        }
+        return val;
+    }
     double parse_power() {
         double val = parse_factor();
         while (match(TokenType::OPERATOR, "**")) {
@@ -218,54 +263,7 @@ private:
 
         throw runtime_error("语法错误：期望数字/变量/括号/一元运算符，实际是：" + peek().value);
     }
-
-    double parse_term() {
-        double val = parse_power();
-
-        while (true) {
-            Token current = peek();
-            if (match(TokenType::OPERATOR, "*") || match(TokenType::OPERATOR, "/") || match(TokenType::OPERATOR, "%"))
-            {
-                string op = current.value;
-                double power_val = parse_power();
-
-                if (op == "*") val *= power_val;
-                else if (op == "/") {
-                    if (power_val == 0) throw runtime_error("运行错误：除数不能为0");
-                    val /= power_val;
-                }
-                else if (op == "%") {
-                    int temp = (int)val;
-                    temp %= (int)power_val;
-                    val = temp;
-                }
-            }
-            else {
-                break;
-            }
-        }
-        return val;
-    }
-
-    // 解析表达式
-    double parse_expr() {
-        double val = parse_term();
-        while (true) {
-            Token current = peek();
-            if (match(TokenType::OPERATOR, "+") || match(TokenType::OPERATOR, "-")) {
-                string op = current.value;
-                double term_val = parse_term();
-
-                if (op == "+") val += term_val;
-                else if (op == "-") val -= term_val;
-            }
-            else {
-                break;
-            }
-        }
-        return val;
-    }
-    bool parse_assignment() {
+       bool parse_assignment() {
         size_t original_pos = token_pos;
         Token current = peek();
 
